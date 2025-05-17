@@ -46,9 +46,16 @@ async def recommend_mate(user_id: int,
                          recommendation_repo: RecommendationRepository = Depends(get_recommendation_repository)):
 
     user = user_repo.get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다")
-    
+    # TODO: 에러 처리
     recommendations = recommendation_repo.get_recommendations_by_user_id(user_id)
     
+    return recommendations
+
+
+@router.get("/api/ai/recommend-team/{team_id}", response_model=List[UserResponse])
+async def recommend_team(team_id: int,
+                       user_repo: UserRepository = Depends(get_user_repository),
+                       recommendation_repo: RecommendationRepository = Depends(get_recommendation_repository)):
+    # TODO: Implement team recommendation logic
+    recommendations = recommendation_repo.get_team_recommendations(team_id)
     return recommendations
