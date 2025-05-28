@@ -1,13 +1,13 @@
-from .config import get_config
-from .data.data_source import SQLAlchemyDataSource
-from .data.user_repository import UserRepository
-from .data.feed_repository import FeedRepository
-from .features.feature_registry import FeatureRegistry
-from .features.user_features import UserFeatureExtractor
-from .features.activity_features import ActivityFeatureExtractor
-from .models.model_registry import ModelRegistry
-from .models.similarity_model import SimilarityModel
-from .scheduler.updater import ModelUpdater
+from config import get_config
+from data.data_source import SQLAlchemyDataSource
+from data.user_repository import UserRepository
+from data.feed_repository import FeedRepository
+from features.feature_registry import FeatureRegistry
+from features.user_features import UserFeatureExtractor
+from features.activity_features import ActivityFeatureExtractor
+from models.model_registry import ModelRegistry
+from models.similarity_model import SimilarityModel
+from scheduler.updater import ModelUpdater
 
 def create_recommendation_system(session_factory):
     """추천 시스템 생성 및 초기화"""
@@ -39,7 +39,7 @@ def create_recommendation_system(session_factory):
         feature_registry=feature_registry,
         model_registry=model_registry,
         recommendation_service=recommendation_service,
-        config=config.config
+        config=config.DEFAULT_CONFIG
     )
     
     return {

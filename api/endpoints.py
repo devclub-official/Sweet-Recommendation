@@ -42,7 +42,7 @@ class UserResponse(BaseModel):
     age_group: str = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class TeamResponse(BaseModel):
     id: int
@@ -53,7 +53,7 @@ class TeamResponse(BaseModel):
     location: str = None
     
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 # 라우터 생성
 router = APIRouter()

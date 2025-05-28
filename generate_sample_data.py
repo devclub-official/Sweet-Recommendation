@@ -21,6 +21,14 @@ def generate_sample_data():
     session = Session()
     
     try:
+        # 기존 데이터 삭제 (역순으로 삭제하여 외래키 제약 방지)
+        session.query(TeamMembership).delete()
+        session.query(Team).delete()
+        session.query(Feed).delete()
+        session.query(Recommendation).delete()
+        session.query(User).delete()
+        session.commit()
+        
         # 1. 사용자 생성 (50명)
         users = []
         for i in range(1, 51):
