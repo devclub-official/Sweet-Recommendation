@@ -23,6 +23,10 @@ class User(Base):
     # TODO: age
     # TODO: gender
     # TODO: favorite_workout_type
+    age_group = Column(String)  # '10대', '20대', '30대', '40대', '50대이상'
+    gender = Column(String)  # 'M', 'F'
+    region = Column(String)  # '서울', '경기', '인천', '부산' 등
+    preferred_group_size = Column(Integer)  # 선호하는 운동 그룹 인원수
 
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
@@ -36,6 +40,9 @@ class Feed(Base):
     content = Column(String)
     visibility = Column(Enum(Visibility))
     image = Column(String)
+    exercise_type = Column(String)  # '러닝', '헬스', '요가', '필라테스', '수영' 등
+    exercise_time = Column(String)  # '새벽', '아침', '점심', '저녁', '심야'
+    workout_duration = Column(Integer)  # 운동 시간(분)
     created_at = Column(DateTime)
     updated_at = Column(DateTime)
     # TODO: location

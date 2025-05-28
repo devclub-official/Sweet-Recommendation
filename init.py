@@ -10,39 +10,41 @@ from .models.similarity_model import SimilarityModel
 from .scheduler.updater import ModelUpdater
 
 def create_recommendation_system(session_factory):
-    config = get_config()
+    """추천 시스템 생성 및 초기화"""
+    from services.recommendation_service import RecommendationService
+    import config
     
-    # 데이터 소스 초기화
-    data_source = SQLAlchemyDataSource(session_factory)
+    # 세션 생성
+    session = session_factory()
+    data_source = SQLAlchemyDataSource(session)
     
-    # 리포지토리 초기화
-    user_repo = UserRepository(data_source)
-    feed_repo = FeedRepository(data_source)
-    
-    # 특성 추출기 등록
+    # Feature Registry 설정
     feature_registry = FeatureRegistry()
-    feature_registry.register('user_features', UserFeatureExtractor())
-    feature_registry.register('activity_features', ActivityFeatureExtractor())
+    feature_registry.register('activity', ActivityFeatureExtractor())
+    feature_registry.register('user', UserFeatureExtractor())
     
-    # 모델 등록
+    # Model Registry 설정
     model_registry = ModelRegistry()
-    model_registry.register(
-        'similarity',
-        SimilarityModel(feature_weights=config.get('feature_weights'))
+    similarity_model = SimilarityModel(
+        feature_weights={'activity': 1.0, 'user': 1.0}
     )
+    model_registry.register('similarity', similarity_model)
     
-    # 모델 업데이터 생성
+    # Recommendation Service 생성
+    recommendation_service = RecommendationService(session_factory)
+    
+    # Model Updater 생성 (배치 처리용)
     updater = ModelUpdater(
         data_source=data_source,
         feature_registry=feature_registry,
         model_registry=model_registry,
-        config=config
+        recommendation_service=recommendation_service,
+        config=config.config
     )
     
     return {
-        'user_repository': user_repo,
-        'feed_repository': feed_repo,
+        'recommendation_service': recommendation_service,
+        'updater': updater,
         'feature_registry': feature_registry,
-        'model_registry': model_registry,
-        'updater': updater
+        'model_registry': model_registry
     }

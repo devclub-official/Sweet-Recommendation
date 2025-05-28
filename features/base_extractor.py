@@ -1,13 +1,12 @@
+# features/base_extractor.py
 from abc import ABC, abstractmethod
 
-class Recommender(ABC):
-    
+class FeatureExtractor(ABC):
     @abstractmethod
-    def preprocess(self, dataframe):
+    def extract(self, data):
         pass
     
-    @abstractmethod
-    def infer(self, user_id: int):
+    @property
+    def feature_names(self):
         pass
 
-    

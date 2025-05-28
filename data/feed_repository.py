@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from .models import Feed
+from .models import Feed, Visibility
 
 class FeedRepository:
     def __init__(self, data_source):
@@ -22,4 +22,12 @@ class FeedRepository:
         """모든 피드 조회"""
         return self.data_source.get_data(
             lambda session: session.query(Feed).all()
+        )
+    
+    def get_feeds_by_user_ids(self, user_ids: List[int]) -> List[Feed]:
+        """여러 사용자 ID로 피드 목록 조회"""
+        if not user_ids:
+            return []
+        return self.data_source.get_data(
+            lambda session: session.query(Feed).filter(Feed.user_id.in_(user_ids)).all()
         )

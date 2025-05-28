@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 from data.user_repository import UserRepository
 from data.recommendation_repository import RecommendationRepository
 from data.data_source import SQLAlchemyDataSource
+from services.recommendation_service import RecommendationService
 
 
 def get_session():
@@ -25,6 +26,11 @@ def get_recommendation_repository(session: Session = Depends(get_session)):
     data_source = SQLAlchemyDataSource(session)
     return RecommendationRepository(data_source)
 
+def get_recommendation_service():
+    engine = create_engine('sqlite:///database.db')
+    session_factory = sessionmaker(bind=engine)
+    return RecommendationService(session_factory)
+
 # 응답 스키마 정의
 class UserResponse(BaseModel):
     id: int
@@ -32,6 +38,19 @@ class UserResponse(BaseModel):
     username: str
     profile_image: str = None
     bio: str = None
+    region: str = None
+    age_group: str = None
+    
+    class Config:
+        orm_mode = True
+
+class TeamResponse(BaseModel):
+    id: int
+    name: str
+    description: str = None
+    skill_level: int = None
+    preferred_workout_type: str = None
+    location: str = None
     
     class Config:
         orm_mode = True
@@ -43,19 +62,27 @@ router = APIRouter()
 @router.get("/api/ai/recommend-mate/{user_id}", response_model=List[UserResponse])
 async def recommend_mate(user_id: int,
                          user_repo: UserRepository = Depends(get_user_repository),
-                         recommendation_repo: RecommendationRepository = Depends(get_recommendation_repository)):
-
+                         recommendation_service: RecommendationService = Depends(get_recommendation_service)):
+    """사용자에게 운동 메이트를 추천합니다"""
+    # 사용자 존재 확인
     user = user_repo.get_user_by_id(user_id)
-    # TODO: 에러 처리
-    recommendations = recommendation_repo.get_recommendations_by_user_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # 추천 결과 가져오기
+    recommendations = recommendation_service.get_user_recommendations(user_id)
     
     return recommendations
 
 
-@router.get("/api/ai/recommend-team/{team_id}", response_model=List[UserResponse])
+@router.get("/api/ai/recommend-team/{team_id}", response_model=List[TeamResponse])
 async def recommend_team(team_id: int,
-                       user_repo: UserRepository = Depends(get_user_repository),
-                       recommendation_repo: RecommendationRepository = Depends(get_recommendation_repository)):
-    # TODO: Implement team recommendation logic
-    recommendations = recommendation_repo.get_team_recommendations(team_id)
+                       recommendation_service: RecommendationService = Depends(get_recommendation_service)):
+    """팀에게 상대 팀을 추천합니다"""
+    # 추천 결과 가져오기
+    recommendations = recommendation_service.get_team_recommendations(team_id)
+    
+    if not recommendations:
+        raise HTTPException(status_code=404, detail="No recommendations found")
+    
     return recommendations
