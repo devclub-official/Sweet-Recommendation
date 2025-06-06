@@ -29,9 +29,9 @@ def generate_sample_data():
         session.query(User).delete()
         session.commit()
         
-        # 1. 사용자 생성 (50명)
+        # 1. 사용자 생성 (1000명)
         users = []
-        for i in range(1, 51):
+        for i in range(1, 1001):
             user = User(
                 id=i,
                 name=f"사용자{i}",
